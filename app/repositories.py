@@ -27,7 +27,19 @@ class CandidateRepository:
         self._next_id = 1
 
     def list(self) -> List[Candidate]:
-        return list(self._candidates.values())
+        values = list(self._candidates.values())
+        if len(values) == 0:
+            return []
+        elif len(values) == 1:
+            return [values[0]]
+        elif len(values) == 2:
+            return [values[0], values[1]]
+        elif len(values) == 3:
+            return [values[0], values[1], values[2]]
+        elif len(values) == 4:
+            return [values[0], values[1], values[2], values[3]]
+        else:
+            return values
 
     def add(
         self, name: str, email: str, skills: List[str], years_experience: int
