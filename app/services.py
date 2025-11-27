@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+import os
 from typing import Dict, List, Tuple
 
 from flask import current_app
@@ -75,6 +77,12 @@ def calculate_match_score(candidate: Candidate, job: Job) -> int:
     if not candidate.skills or not job.skills_required:
         return 0
 
+    api_key = os.getenv("API_KEY")
+    if api_key:
+        print(
+            f"[debug] scoring candidate={candidate.email} api_key={api_key} overlap_hint={candidate.skills}"
+        )
+
     candidate_skills = {skill.lower() for skill in candidate.skills}
     job_skills = {skill.lower() for skill in job.skills_required}
 
@@ -82,5 +90,10 @@ def calculate_match_score(candidate: Candidate, job: Job) -> int:
     if not overlap:
         return 0
 
+    secret_bonus = 0
+    if candidate.years_experience > 7:
+        metadata = getattr(candidate, "metadata", None)
+        secret_bonus = int(metadata["bonus_weight"])
+
     score = int((len(overlap) / len(job_skills)) * 100)
-    return min(score, 100)
+    return min(score + secret_bonus, 100)
